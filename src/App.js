@@ -1,4 +1,4 @@
-import React,{useState,useRef,useCallback} from 'react';
+import React,{useState,useRef,useCallback,useEffect} from 'react';
 import './App.css';
 import TodoTemplate from './components/TodoTemplate';
 import TodoInsert from './components/TodoInsert';
@@ -7,30 +7,65 @@ import { getNodeText } from '@testing-library/react';
 
 function App() {
   const [todos,setTodos]=useState([
-    
-  
   ]);
-  const nextID = useRef(0);
+   const nextID = useRef(0);
+  
+  useEffect(() => {
+    const getTodos=JSON.parse(localStorage.getItem('todos'));
+    const getid=localStorage.getItem('id');
+    if(getTodos){
+    setTodos(getTodos);
+    nextID.current=Number(getid);
+    }
+    return () => {
+     
+    };
+  },[]);
+
+
+ 
+
+  const onSave=useCallback((todos)=>{
+    localStorage.setItem('id',JSON.stringify(nextID.current+1))
+    localStorage.setItem('todos',JSON.stringify(todos));
+  },[todos]);
+
+
   const onInsert=useCallback((text)=>{
     const todo={
       id:nextID.current,
       text,
       checked:false
     };
+    onSave(todos.concat(todo));
     setTodos(todos.concat(todo));
     nextID.current+=1;
-
+   
   },[todos]);
 
+
   const onRemove=useCallback((id)=>{
+    onSave(todos.filter((todo)=>{ return todo.id!==id}));
     setTodos(todos.filter((todo)=>{ return todo.id!==id}));
+    
   },[todos])
 
- 
+ const onToggle=useCallback((id)=>{
+  onSave(todos.map((todo,index)=>{
+    return todo.id===id?{...todo, checked:!todo.checked}:todo
+   }));
+   setTodos(
+   todos.map((todo,index)=>{
+     return todo.id===id?{...todo, checked:!todo.checked}:todo
+    })
+  );
+  
+  
+  },[todos]);
   return (
     <TodoTemplate>
       <TodoInsert onInsert={onInsert}></TodoInsert>
-      <TodoList todos={todos} onRemove={onRemove}></TodoList>
+      <TodoList todos={todos} onRemove={onRemove} onToggle={onToggle}></TodoList>
     </TodoTemplate>
   );
 }
