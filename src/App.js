@@ -4,11 +4,13 @@ import TodoTemplate from './components/TodoTemplate';
 import TodoInsert from './components/TodoInsert';
 import TodoList from './components/TodoList';
 import { getNodeText } from '@testing-library/react';
+import producer from 'immer';
 
 function App() {
   const [todos,setTodos]=useState([
   ]);
    const nextID = useRef(0);
+   const DetailView=useRef(0);
   
   useEffect(() => {
     const getTodos=JSON.parse(localStorage.getItem('todos'));
@@ -59,13 +61,17 @@ function App() {
      return todo.id===id?{...todo, checked:!todo.checked}:todo
     })
   );
-  
-  
   },[todos]);
+
+  const onDetailClicked=useCallback((id)=>{
+    
+
+  },[DetailView]);
+
   return (
     <TodoTemplate>
       <TodoInsert onInsert={onInsert}></TodoInsert>
-      <TodoList todos={todos} onRemove={onRemove} onToggle={onToggle}></TodoList>
+      <TodoList todos={todos} onRemove={onRemove} onToggle={onToggle} ></TodoList>
     </TodoTemplate>
   );
 }
